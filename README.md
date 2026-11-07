@@ -92,7 +92,60 @@ The Worker is stateless (a fresh server per request, JSON responses), so it need
 
 ## The API underneath
 
-`https://artsnet.com/api/v1` is a plain JSON API you can call without this package: `/songs`, `/songs/{slug}`, `/tags`, with the same parameters as `search_songs`. Every response carries `schemaVersion`, `license` and `generatedAt`, long public cache headers and open CORS. It is documented in the [Artsnet repository README](https://github.com/artsnet/artsnet#public-api-v1).
+`https://artsnet.com/api/v1` is a plain, read-only JSON API you can call without this package. No key, no account. This section is its reference.
+
+### Endpoints
+
+| Endpoint | Returns |
+|---|---|
+| `GET /api/v1/songs` | `songs[]` (newest approval first) and `nextCursor` |
+| `GET /api/v1/songs/{slug}` | `song`, or 404 |
+| `GET /api/v1/tags` | `tags[]` (active tags, grouped by category) |
+| `OPTIONS …` | CORS preflight, 204 |
+
+### Query parameters for `/songs`
+
+| Parameter | Values | Meaning |
+|---|---|---|
+| `q` | up to 200 characters | Keywords, all of which must appear in the song's titles, YouTube channel name, performer candidate names or tag slugs. Width, case and kana are normalised. |
+| `language` | `ja`, `en`, `other` | Song language |
+| `status` | `noticed`, `performance-candidate` | Shelf: published after review, or also carrying performer candidates |
+| `tag` | a tag slug; repeatable, up to 10 | Every given tag must be on the song |
+| `since` | ISO 8601 timestamp | Only songs whose `updatedAt` is at or after it (incremental sync) |
+| `limit` | 1–100, default 50 | Page size |
+| `cursor` | the previous response's `nextCursor` | Next page |
+
+Unknown parameters and out-of-range values are rejected with 400, so a typo never silently returns everything. Slugs are `[A-Za-z0-9_-]` (they embed YouTube video IDs, so they are case-sensitive).
+
+### Response envelope
+
+```json
+{
+  "schemaVersion": 1,
+  "license": { "name": "CC BY 4.0", "url": "https://creativecommons.org/licenses/by/4.0/", "attribution": "Artsnet (https://artsnet.com)", "covers": "…" },
+  "generatedAt": "2026-11-07T07:00:59.881Z",
+  "songs": [ … ],
+  "nextCursor": "eyJhIjoxNzkz…" | null
+}
+```
+
+A song is the object shown in [What a song looks like](#what-a-song-looks-like). `schemaVersion` changes only on a breaking change to these shapes; fields may be added without a bump.
+
+### Errors
+
+| Status | Body | When |
+|---|---|---|
+| 400 | `{ "schemaVersion": 1, "error": "invalid-request", "detail": "…" }` | Bad parameter or slug; `detail` says which |
+| 404 | `{ "schemaVersion": 1, "error": "not-found", "detail": "…" }` | No public song has that slug |
+| 500 | `{ "schemaVersion": 1, "error": "unavailable", "detail": "…" }` | The catalogue could not be read; retry later |
+
+### Caching, CORS and fair use
+
+Responses are public and identical for everyone, so they are cached at Cloudflare's edge for an hour and served stale for a day while refreshing; expect `cf-cache-status: HIT` on repeat requests. `Access-Control-Allow-Origin: *` lets browser pages call it directly. Please send a `User-Agent` that names your application, keep to what you need, and use the daily dump at [artsnet/artsnet-dataset](https://github.com/artsnet/artsnet-dataset) for anything that needs the whole catalogue.
+
+### Incremental sync
+
+Fetch everything once (follow `nextCursor` until it is `null`), remember the largest `updatedAt` you saw, and later call `/songs?since=<that timestamp>` to get only what changed. A song that was withdrawn stops appearing; compare against your copy to notice removals, or re-sync from the daily dump.
 
 ## Data license
 
@@ -139,4 +192,16 @@ Artsnet の編集データ(説明、タグ、ジャンル、候補の理由)は 
 
 ### API
 
-`https://artsnet.com/api/v1` はこのパッケージなしでも呼べる JSON API です(`/songs`、`/songs/{slug}`、`/tags`)。応答には `schemaVersion`、`license`、`generatedAt`、長めの公開キャッシュヘッダー、CORS が付きます。詳細は [Artsnet 本体の README](https://github.com/artsnet/artsnet#public-api-v1) にあります。
+`https://artsnet.com/api/v1` はこのパッケージなしでも呼べる読み取り専用の JSON API です。キーもアカウントも不要です。
+
+| エンドポイント | 返り値 |
+|---|---|
+| `GET /api/v1/songs` | `songs[]`(承認の新しい順)と `nextCursor` |
+| `GET /api/v1/songs/{slug}` | `song`、無ければ 404 |
+| `GET /api/v1/tags` | `tags[]`(有効なタグ) |
+
+`/songs` のクエリ: `q`(キーワード。曲名・チャンネル名・演奏家候補名・タグに全語が含まれるもの。全角半角・大文字小文字・かなは正規化)、`language`(`ja` / `en` / `other`)、`status`(`noticed` / `performance-candidate`)、`tag`(スラッグ、複数可、すべて一致)、`since`(ISO 8601。`updatedAt` がそれ以降の曲だけ。差分同期用)、`limit`(1〜100、既定 50)、`cursor`(前の応答の `nextCursor`)。不明なパラメータや範囲外の値は 400 で拒否します。slug は YouTube の動画 ID を含むため大文字小文字を区別します。
+
+応答はすべて `schemaVersion`、`license`(CC BY 4.0 と帰属表示)、`generatedAt` を含みます。`schemaVersion` は互換性のない変更のときだけ上がり、項目の追加では変わりません。エラーは `{ "schemaVersion": 1, "error": "invalid-request" | "not-found" | "unavailable", "detail": "…" }` の形で、400 / 404 / 500 を返します。
+
+応答は誰にでも同じなので Cloudflare のエッジで 1 時間キャッシュされ、更新中は最長 1 日古い内容を返します。`Access-Control-Allow-Origin: *` なのでブラウザから直接呼べます。アプリ名を名乗る `User-Agent` を付け、必要な分だけ取得し、全量が要る用途は日次ダンプ [artsnet/artsnet-dataset](https://github.com/artsnet/artsnet-dataset) を使ってください。差分同期は、全件取得後に最大の `updatedAt` を記録し、以後 `since=<その時刻>` で呼びます。
