@@ -10,7 +10,7 @@ Read-only access to Artsnet's catalogue of AI-created songs. No key. Data is CC 
 ## Pick a surface
 
 - **MCP tools** `search_songs`, `get_song`, `list_tags` when the server is registered.
-- **CLI** when you have a shell: `npx -y @artsnet/mcp search "<keywords>" --json`, `npx -y -p @artsnet/mcp artsnet get <slug> --json`, `… artsnet tags --json`. Always pass `--json`.
+- **CLI** when you have a shell: `npx -y -p @artsnet/mcp artsnet search "<keywords>" --json`, `npx -y -p @artsnet/mcp artsnet get <slug> --json`, `… artsnet tags --json`. Always pass `--json`.
 - **HTTP** when nothing else is available: `https://artsnet.com/api/v1/songs?q=<keywords>`.
 
 ## Search well

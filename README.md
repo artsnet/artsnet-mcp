@@ -2,7 +2,7 @@
 
 MCP server and client for the **Artsnet catalogue of AI-created songs**. Search and fetch reviewed songs with bilingual editorial descriptions, genres, tags, human performer candidates and the YouTube video ID. Read-only, no key. Served from `artsnet.com`; the editorial data is **CC BY 4.0**.
 
-Three ways in: a **stdio MCP server** (`npx -y @artsnet/mcp`) for Claude Code, Claude Desktop, Cursor and any MCP client; a **CLI** (`artsnet search …`); and a **library** client. The same tools also run as a **Cloudflare Worker** over Streamable HTTP, which is how Artsnet hosts them.
+Three ways in: a **stdio MCP server** (`npx -y -p @artsnet/mcp artsnet-mcp`) for Claude Code, Claude Desktop, Cursor and any MCP client; a **CLI** (`artsnet search …`); and a **library** client. The same tools also run as a **Cloudflare Worker** over Streamable HTTP, which is how Artsnet hosts them.
 
 [日本語](#日本語)
 
@@ -57,7 +57,7 @@ Remote use (no install): the hosted endpoint is `https://mcp.artsnet.com/mcp` on
 ## CLI
 
 ```bash
-npx @artsnet/mcp search "piano" --language ja --limit 5
+npx -p @artsnet/mcp artsnet search "piano" --language ja --limit 5
 npx -p @artsnet/mcp artsnet get night-highway --json
 npx -p @artsnet/mcp artsnet tags
 ```
@@ -114,13 +114,13 @@ MIT © Artsnet. See [CONTRIBUTING.md](CONTRIBUTING.md) and [SECURITY.md](SECURIT
 
 **Artsnet の AI 楽曲カタログ** を LLM から使うための MCP サーバーとクライアントです。審査済みの曲を検索・取得し、日英の編集説明、ジャンル、タグ、人間の演奏家候補、YouTube の動画 ID を返します。読み取り専用・キー不要。`artsnet.com` が提供し、編集データは **CC BY 4.0** です。
 
-入口は 3 つあります。**stdio の MCP サーバー**(`npx -y @artsnet/mcp`。Claude Code、Claude Desktop、Cursor など)、**CLI**(`artsnet search …`)、**ライブラリ**のクライアントです。同じツールを **Cloudflare Worker** 上で Streamable HTTP として動かすこともでき、Artsnet はその形で `mcp.artsnet.com` に置きます。
+入口は 3 つあります。**stdio の MCP サーバー**(`npx -y -p @artsnet/mcp artsnet-mcp`。Claude Code、Claude Desktop、Cursor など)、**CLI**(`artsnet search …`)、**ライブラリ**のクライアントです。同じツールを **Cloudflare Worker** 上で Streamable HTTP として動かすこともでき、Artsnet はその形で `mcp.artsnet.com` に置きます。
 
 ### 使い方
 
 ```bash
 claude mcp add artsnet -- npx -y -p @artsnet/mcp artsnet-mcp
-npx @artsnet/mcp search "ピアノ" --language ja --limit 5
+npx -p @artsnet/mcp artsnet search "ピアノ" --language ja --limit 5
 ```
 
 | ツール | 入力 | 返り値 |

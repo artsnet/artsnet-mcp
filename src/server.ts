@@ -63,8 +63,9 @@ const messages = {
 
 function failure(error: unknown) {
   const code = error instanceof ArtsnetApiError ? error.code : "unavailable";
-  const detail = error instanceof ArtsnetApiError && error.detail ? ` ${error.detail}` : "";
-  const output = { ok: false as const, error: { code, message: `${messages[code]}${detail}` } };
+  // The API's own detail is more specific than the generic message, so it replaces it.
+  const message = error instanceof ArtsnetApiError && error.detail ? error.detail : messages[code];
+  const output = { ok: false as const, error: { code, message } };
   return { content: [{ type: "text" as const, text: JSON.stringify(output) }], structuredContent: output, isError: true as const };
 }
 
