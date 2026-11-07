@@ -44,6 +44,9 @@ describe("createArtsnetClient", () => {
     const api = fakeApi();
     await expect(createArtsnetClient({ fetcher: api.fetcher }).getSong("Not A Slug")).rejects.toBeInstanceOf(ArtsnetApiError);
     expect(api.calls).toHaveLength(0);
+    // Real slugs embed YouTube video IDs: mixed case, "_" and "-" must pass.
+    await expect(createArtsnetClient({ fetcher: api.fetcher }).getSong("youtube-3GXxiE_xG7w")).rejects.toMatchObject({ code: "not-found" });
+    expect(api.calls[0]?.url.pathname).toBe("/api/v1/songs/youtube-3GXxiE_xG7w");
     expect(() => createArtsnetClient({ baseUrl: "ftp://x" })).toThrow(ArtsnetApiError);
   });
 });

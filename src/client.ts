@@ -90,7 +90,8 @@ export type ArtsnetClient = {
   listTags(): Promise<TagsResult>;
 };
 
-const SLUG = /^[a-z0-9][a-z0-9-]{0,199}$/;
+/** Slugs embed YouTube video IDs: mixed case, digits, "_" and "-" (e.g. youtube-3GXxiE-xG7w). */
+export const SLUG_PATTERN = /^[A-Za-z0-9_-]{1,200}$/;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -141,7 +142,7 @@ export function createArtsnetClient(options: ClientOptions = {}): ArtsnetClient 
     },
     getSong(slug) {
       const trimmed = slug.trim();
-      if (!SLUG.test(trimmed)) return Promise.reject(new ArtsnetApiError("invalid-input", { detail: "not a song slug" }));
+      if (!SLUG_PATTERN.test(trimmed)) return Promise.reject(new ArtsnetApiError("invalid-input", { detail: "not a song slug" }));
       return request<SongResult>(`/songs/${encodeURIComponent(trimmed)}`);
     },
     listTags() {

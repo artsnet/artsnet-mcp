@@ -1,6 +1,6 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { ArtsnetApiError, songLanguages, songStatuses, type ArtsnetClient } from "./client.js";
+import { ArtsnetApiError, SLUG_PATTERN, songLanguages, songStatuses, type ArtsnetClient } from "./client.js";
 import { VERSION } from "./version.js";
 
 /**
@@ -113,7 +113,7 @@ export function createServer(client: ArtsnetClient): McpServer {
     {
       title: "Get an Artsnet song",
       description: `Fetch one song by its Artsnet slug (from search_songs or an artsnet.com URL /ja/songs/<slug>). Fails with not-found for an unknown or non-public slug. ${DATA_NOTICE}`,
-      inputSchema: { slug: z.string().regex(/^[a-z0-9][a-z0-9-]{0,199}$/).describe("Song slug") },
+      inputSchema: { slug: z.string().regex(SLUG_PATTERN).describe("Song slug, e.g. youtube-3GXxiE-xG7w") },
       outputSchema: getOutputShape,
       annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
     },

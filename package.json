@@ -1,6 +1,6 @@
 {
   "name": "@artsnet/mcp",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "MCP server and client for the Artsnet catalogue of AI-created songs: search and fetch reviewed songs with bilingual editorial descriptions, tags, performer candidates and YouTube video IDs. Read-only, no key, served from artsnet.com. Data under CC BY 4.0.",
   "license": "MIT",
   "author": "Artsnet",

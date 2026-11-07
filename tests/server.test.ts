@@ -62,6 +62,8 @@ describe("MCP tools", () => {
     const api = fakeApi();
     const { client, close } = await connect(api.fetcher);
     expect((await client.callTool({ name: GET_TOOL, arguments: { slug: "Bad Slug" } })).isError).toBe(true);
+    expect((await client.callTool({ name: GET_TOOL, arguments: { slug: "youtube-3GXxiE_xG7w" } })).structuredContent).toMatchObject({ ok: false, error: { code: "not-found" } });
+    api.calls.length = 0;
     expect((await client.callTool({ name: SEARCH_TOOL, arguments: { limit: 1000 } })).isError).toBe(true);
     expect((await client.callTool({ name: SEARCH_TOOL, arguments: { language: "fr" } })).isError).toBe(true);
     expect(api.calls).toHaveLength(0);
