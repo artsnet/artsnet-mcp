@@ -1,0 +1,28 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [20, 22, 24]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+      - name: Smoke-test the packed CLI through npx (offline)
+        run: |
+          tarball="$(npm pack --silent)"
+          mkdir -p /tmp/npx-smoke && cd /tmp/npx-smoke
+          npx --yes --package "$GITHUB_WORKSPACE/$tarball" "$(node -p "Object.keys(require('$GITHUB_WORKSPACE/package.json').bin)[0]")" --version | grep -q "$(node -p "require('$GITHUB_WORKSPACE/package.json').version")"

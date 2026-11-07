@@ -1,0 +1,54 @@
+{
+  "name": "@artsnet/mcp",
+  "version": "0.1.0",
+  "description": "MCP server and client for the Artsnet catalogue of AI-created songs: search and fetch reviewed songs with bilingual editorial descriptions, tags, performer candidates and YouTube video IDs. Read-only, no key, served from artsnet.com. Data under CC BY 4.0.",
+  "license": "MIT",
+  "author": "Artsnet",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/artsnet/artsnet-mcp.git"
+  },
+  "homepage": "https://github.com/artsnet/artsnet-mcp#readme",
+  "bugs": "https://github.com/artsnet/artsnet-mcp/issues",
+  "keywords": ["artsnet", "ai-music", "ai-generated", "songs", "catalogue", "mcp", "mcp-server", "cli", "cloudflare-workers", "open-data", "cc-by"],
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "bin": {
+    "artsnet": "./dist/cli.js",
+    "artsnet-mcp": "./dist/mcp.js"
+  },
+  "files": ["dist", "SKILL.md", "README.md", "LICENSE"],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "clean": "rm -rf dist",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "worker:dev": "wrangler dev",
+    "worker:deploy": "wrangler deploy",
+    "prepublishOnly": "npm run clean && npm run typecheck && npm test && npm run build"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.2",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20261104.1",
+    "@types/node": "^22.0.0",
+    "typescript": "^5.9.0",
+    "vitest": "^4.0.0",
+    "wrangler": "^4.158.0"
+  }
+}
