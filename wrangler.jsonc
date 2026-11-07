@@ -5,8 +5,8 @@
   "compatibility_date": "2026-11-01",
   "compatibility_flags": ["nodejs_compat"],
   "observability": { "enabled": true },
-  // Uncomment and adjust to serve at a custom domain owned by the deploying account:
-  // "routes": [{ "pattern": "mcp.artsnet.com", "custom_domain": true }],
+  // Artsnet's hosted endpoint. A mirror on another account must change or remove this route.
+  "routes": [{ "pattern": "mcp.artsnet.com", "custom_domain": true }],
   "vars": {
     "ARTSNET_API_BASE": "https://artsnet.com/api/v1"
   }
